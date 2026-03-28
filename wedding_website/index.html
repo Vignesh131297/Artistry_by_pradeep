@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Artistry by Pradeep</title>
+  <link rel="icon" type="image/png" href="assets/favicon-48x48.png" sizes="48x48">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&family=Dancing+Script:wght@600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- CURSOR -->
+<div class="cursor" id="cursor">
+  <div class="cursor-dot" id="cursorDot"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+</div>
+
+<!-- LOADER -->
+<div id="loader">
+  <img class="loader-img" src="assets/logo.png" alt="Logo"/>
+  <div class="loader-name">Artistry by Pradeep</div>
+  <div class="loader-sub">Framing Moments That Last Forever.</div>
+  <div class="loader-bar"><div class="loader-fill"></div></div>
+</div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#hero" class="nav-logo">
+    <img class="nav-logo-img" src="assets/logo.png" alt="Logo"/>
+    <span class="nav-brand">Artistry by <span>Pradeep</span></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#portfolio">Portfolio</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#testimonials">Stories</a></li>
+    <li><a href="#booking">Contact</a></li>
+  </ul>
+  <a href="#booking" class="nav-cta">Book Your Date</a>
+  <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#about" onclick="closeMobile()">About</a>
+  <a href="#portfolio" onclick="closeMobile()">Portfolio</a>
+  <a href="#services" onclick="closeMobile()">Services</a>
+  <a href="#testimonials" onclick="closeMobile()">Stories</a>
+  <a href="#booking" onclick="closeMobile()">Contact</a>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-img">
+    <img src="assets/IMAGE F.jpeg" alt="Wedding" 
+         onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#fff5f2,#fef0eb)'"/>
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="hero-orb orb1"></div>
+  <div class="hero-orb orb2"></div>
+  <div class="hero-content">
+    <div class="hero-logo-wrap">
+      <img src="assets/logo.png" alt="Artistry by Pradeep Logo"/>
+    </div>
+    <h1 class="hero-title">Framing Moments That Last Forever.</h1>
+    <div class="hero-script">Artistry by Pradeep</div>
+    <br>
+    <br>
+    <p class="hero-sub"> capturing emotions, laughter, and love that deserve to last forever.</p>
+    <div class="hero-btns">
+      <a href="#booking" class="btn-primary">Book Your Date</a>
+      <a href="#portfolio" class="btn-secondary">View Gallery</a>
+    </div>
+  </div>
+  <div class="hero-scroll"><span>Scroll</span><div class="scroll-line"></div></div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-strip">
+  <div class="marquee-track">
+    <div class="marquee-item">Wedding Photography <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Pre-Wedding Shoots <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Cinematic Films <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Drone Coverage <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Album Design <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Couple Portraits <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Wedding Photography <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Pre-Wedding Shoots <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Cinematic Films <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Drone Coverage <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Album Design <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Couple Portraits <span class="marquee-dot"></span></div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-images reveal-left">
+        <div class="about-img-main">
+          <img src="assets/55.jpg.jpeg" alt="Wedding portrait" loading="lazy"
+               onerror="this.style.background='linear-gradient(135deg,#ffe8e0,#ffddd2)';this.style.width='100%';this.style.height='100%'"/>
+        </div>
+        <div class="about-img-accent">
+          <img src="assets/51.jpg.jpeg" alt="Wedding moment" loading="lazy"
+               onerror="this.style.background='linear-gradient(135deg,#f0e8e0,#e8ddd2)';this.style.width='100%';this.style.height='100%'"/>
+        </div>
+        <div class="about-img-portrait">
+          <img src="assets/23.jpg.jpeg" alt="Portrait" loading="lazy"
+               onerror="this.style.background='linear-gradient(135deg,#e8e0e0,#ddd5d0)';this.style.width='100%';this.style.height='100%'"/>
+        </div>
+        <div class="about-img-badge"><strong class="exp-years">10+</strong><span>Years</span></div>
+      </div>
+      <div class="reveal-right">
+        <div class="section-tag">Our Story</div>
+        <h2 class="section-title">Your Love Story,<br><em> Beautifully Captured</em></h2>
+        <div class="section-divider"></div>
+        Timeless photography & cinematic wedding films by Artistry by Pradeep.<br><br>
+        <p class="section-sub" style="margin-bottom:1.2rem;">Founded by Pradeep, Artistry by Pradeep believes weddings should be remembered as timeless works of art. With over a decade of experience across South India, we blend documentary storytelling with cinematic creativity to capture memories with authenticity and emotion.</p>
+        <div class="about-stats">
+          <div class="stat-item"><div class="stat-num">350+</div><div class="stat-label">Weddings Captured</div></div>
+          <div class="stat-item"><div class="stat-num exp-years">10+</div><div class="stat-label">Years Experience</div></div>
+          <div class="stat-item"><div class="stat-num">100%</div><div class="stat-label">Happy Couples</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PORTFOLIO -->
+<section id="portfolio">
+  <div class="container-wide">
+    <div class="container" style="padding-bottom:2.5rem;">
+      <div class="reveal">
+        <div class="section-tag">Our Work</div>
+        <h2 class="section-title">Moments <em>Frozen</em> in Time</h2>
+        <div class="section-divider"></div>
+      </div>
+    </div>
+    <div class="gallery-grid reveal" style="transition-delay:.3s;">
+      <div class="gallery-item gi-color-1" data-category="ceremony" onclick="openLightbox(0)">
+        <img src="assets/32.jpg" alt="Sacred Vows" loading="lazy" onerror="this.remove()"/>
+        <div class="gallery-zoom">+</div>
+      </div>
+      <div class="gallery-item gi-color-2" data-category="portrait" onclick="openLightbox(1)">
+        <img src="assets/7.jpg" alt="Golden Hour" loading="lazy" onerror="this.remove()"/>
+        <div class="gallery-zoom">+</div>
+      </div>
+      <div class="gallery-item gi-color-3" data-category="pre-wedding" onclick="openLightbox(2)">
+        <img src="assets/53.jpg" alt="Sunset" loading="lazy" onerror="this.remove()"/>
+        <div class="gallery-zoom">+</div>
+      </div>
+      <div class="gallery-item gi-color-4" data-category="reception" onclick="openLightbox(3)">
+        <img src="assets/50.jpg" alt="First Dance" loading="lazy" onerror="this.remove()"/>
+        <div class="gallery-zoom">+</div>
+      </div>
+      <div class="gallery-item gi-color-5" data-category="pre-wedding" onclick="openLightbox(4)">
+        <img src="assets/9.jpg" alt="Beach" loading="lazy" onerror="this.remove()"/>
+        <div class="gallery-zoom">+</div>
+      </div>
+      <div class="gallery-item gi-color-6" data-category="ceremony" onclick="openLightbox(16)">
+        <img src="assets/3.jpg" alt="Rings" loading="lazy" onerror="this.remove()"/>
+        <div class="gallery-zoom">+</div>
+      </div>
+      <div class="gallery-item gi-color-7" data-category="ceremony" onclick="openLightbox(6)">
+        <img src='assets/1.jpg' alt="Floral" loading="lazy" onerror="this.remove()"/>
+        <div class="gallery-zoom">+</div>
+      </div>
+      <div class="gallery-item gi-color-8" data-category="reception" onclick="openLightbox(7)">
+        <img src="assets/6.jpg" alt="Candles" loading="lazy" onerror="this.remove()"/>
+        <div class="gallery-zoom">+</div>
+      </div>
+      <div class="gallery-item gi-color-9" data-category="ceremony" onclick="openLightbox(8)">
+        <img src="assets/36.jpg" alt="Rings" loading="lazy" onerror="this.remove()"/>
+        <div class="gallery-zoom">+</div>
+      </div>
+      <div class="gallery-item gi-color-10" data-category="ceremony" onclick="openLightbox(14)">
+        <img src="assets/4.jpg" alt="Rings" loading="lazy" onerror="this.remove()"/>
+        <div class="gallery-zoom">+</div>
+      </div>
+      <div class="gallery-item gi-color-11" data-category="ceremony" onclick="openLightbox(9)">
+        <img src="assets/8.jpg" alt="Rings" loading="lazy" onerror="this.remove()"/>
+        <div class="gallery-zoom">+</div>
+      </div>
+      <div class="gallery-item gi-color-12" data-category="ceremony" onclick="openLightbox(10)">
+        <img src="assets/38.jpg" alt="Rings" loading="lazy" onerror="this.remove()"/>
+        <div class="gallery-zoom">+</div>
+      </div>
+      <div class="gallery-item gi-color-13" data-category="ceremony" onclick="openLightbox(11)">
+        <img src="assets/24.jpg" alt="Rings" loading="lazy" onerror="this.remove()"/>
+        <div class="gallery-zoom">+</div>
+      </div>
+      <div class="gallery-item gi-color-14" data-category="ceremony" onclick="openLightbox(13)">
+        <img src="assets/52.jpg" alt="Rings" loading="lazy" onerror="this.remove()"/>
+        <div class="gallery-zoom">+</div>
+      </div>
+      <div class="gallery-item gi-color-15" data-category="ceremony" onclick="openLightbox(12)">
+        <img src="assets/45.jpg" alt="Rings" loading="lazy" onerror="this.onerror=null; this.src='assets/45.jpg';"/>
+        <div class="gallery-zoom">+</div>
+      </div>
+      <div class="gallery-item gi-color-17" data-category="portrait" onclick="openLightbox(5)">
+        <img src="assets/18.jpg" alt="Embrace" loading="lazy" onerror="this.remove()"/>
+        <div class="gallery-zoom">+</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LIGHTBOX -->
+<div id="lightbox">
+  <div class="lb-inner">
+    <button class="lb-close" onclick="closeLightbox()">✕</button>
+    <button class="lb-nav lb-prev" onclick="navLightbox(-1)">‹</button>
+    <button class="lb-nav lb-next" onclick="navLightbox(1)">›</button>
+    <div class="lb-image"><img id="lbImg" src="" alt=""/></div>
+    <div class="lb-caption" id="lbCaption"></div>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="container">
+    <div class="services-header">
+      <div class="reveal">
+        <div class="section-tag">What We Offer</div>
+        <h2 class="section-title">Our <em>Packages</em></h2>
+        <div class="section-divider"></div>
+        <p class="section-sub">Tailored photography experiences designed to capture every dimension of your celebration.</p>
+      </div>
+    </div>
+    <div class="services-grid reveal" style="transition-delay:.2s;">
+      <div class="service-card">
+        <div class="service-icon"><img src="assets/1.jpg" alt="Basic Package"></div>
+        <div class="service-name">Basic</div>
+        <div class="service-desc">
+          <ul class="service-points">
+            <li>Traditional Photography</li>
+            <li>Album 1Nos</li>
+            <li>Photo Frames 1Nos</li>
+          </ul>
+        </div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon"><img src="assets/2.jpg" alt="Classic Package"></div>
+        <div class="service-name">CLASSIC</div>
+        <div class="service-desc">
+          <ul class="service-points">
+            <li>Traditional Photography</li>
+            <li>Traditional Vidography</li>
+            <li>Candid Photography</li>
+            <li>Synthatic Album 2Nos</li>
+            <li>Photo Frames 2Nos</li>
+            <li>Pre or Post Outdoot</li>
+          </ul>
+        </div>
+      </div>
+      <div class="service-card">
+        <div class="service-tag">Most Popular</div>
+        <div class="service-icon"><img src="assets/3.jpg" alt="Signature Package"></div>
+        <div class="service-name">SIGNATURE</div>
+        <div class="service-desc">
+          <ul class="service-points">
+            <li>Traditional Photography</li>
+            <li>Traditional Vidography 2Nos</li>
+            <li>Candid Photography</li>
+            <li>Candid Cinematography</li>
+            <li>Premium Synthatic Album 2Nos</li>
+            <li>Couple Magazine 1Nos</li>
+            <li>Photo Frames 2Nos</li>
+            <li>Pre or Post Outdoot</li>
+            <li>Aerial View Drone</li>
+          </ul>
+        </div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon"><img src="assets/4.jpg" alt="Royal Package"></div>
+        <div class="service-name">ROYAL</div>
+        <div class="service-desc">
+          <ul class="service-points">
+            <li>Traditional Photography</li>
+            <li>Traditional Vidography 2Nos</li>
+            <li>Candid Photography 2Nos</li>
+            <li>Candid Cinematography</li>
+            <li>Aerial View Drone</li>
+            <li>Premium Synthatic Album 2Nos</li>
+            <li>Couple Magazine 1Nos</li>
+            <li>Photo Frames 2Nos</li>
+            <li>Pre or Post Outdoot</li>
+            <li>Live Streaming</li>
+            <li>LED wall 6*8 ft</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="container">
+    <div class="testimonials-inner" id="testimonialsInner">
+      <div class="testimonials-left reveal-left">
+        <div class="t-large-quote">"</div>
+        <div class="section-tag">Customer Reviews</div>
+        <h2 class="section-title">What Our <em>Couples</em> Say</h2>
+        <div class="section-divider"></div>
+        <p class="section-sub">Real stories from real couples we've had the honour of photographing.</p>
+        <div style="margin-top:2rem;">
+          <p style="font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:var(--orange);margin-bottom:.8rem;">❖ Share Your Experience</p>
+          <div style="display:inline-block;padding:10px;border:1.5px solid var(--border);background:#fff;">
+            <img id="reviewQRCode" src="" alt="Scan to leave a review" style="width:150px;height:150px;display:block;"/>
+          </div>
+          <p style="font-size:.7rem;color:var(--gray);margin-top:.7rem;line-height:1.7;">
+            Scan with your phone camera<br>to open the review form
+          </p>
+        </div>
+      </div>
+      <div class="testimonials-right" id="approvedReviewsList"></div>
+    </div>
+  </div>
+</section>
+
+<!-- BOOKING -->
+<section id="booking">
+  <div class="container">
+    <div class="booking-grid">
+      <div class="reveal-left">
+        <div class="section-tag">Get In Touch</div>
+        <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,3vw,3rem);font-weight:300;color:var(--text);">Let's Create<br><em style="font-style:italic;color:var(--orange)">Your Forever</em> Story</h2>
+        <div class="section-divider"></div>
+        <p class="section-sub">We'd love to be part of your wedding journey. Reach out to check availability and discuss your vision.</p>
+        <ul class="contact-list">
+          <li><div class="c-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="c-text"><strong>Location</strong>Urappakkam, Chennai</div></li>
+          <li><div class="c-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a2 2 0 0 1 1.72-2l3 .01a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div><div class="c-text"><strong>Phone</strong>+91 99627 97802 / +91 91767 97802</div></li>
+          <li><div class="c-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><div class="c-text"><strong>Email</strong><a href="mailto:artistrybypradeep@gmail.com">artistrybypradeep@gmail.com</a></div></li>
+          <li><div class="c-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="12" y1="17" x2="12" y2="21"/><line x1="8" y1="21" x2="16" y2="21"/></svg></div><div class="c-text"><strong>Instagram</strong><a href="https://www.instagram.com/ARTISTRY_BY_PRADEEP" target="_blank">@ARTISTRY_BY_PRADEEP</a></div></li>
+        </ul>
+      </div>
+      <div class="reveal-right">
+        <div class="booking-form">
+          <form id="bookingForm" onsubmit="submitForm(event)" action="https://formsubmit.co/artistrybypradeep@gmail.com" method="POST">
+            <input type="hidden" name="_subject" value="New Wedding Enquiry!">
+            <input type="hidden" name="_captcha" value="false">
+            <input type="hidden" name="_template" value="table">
+            <div class="form-row">
+              <div class="form-group"><label>Your Name *</label><input type="text" name="name" placeholder="Full Name" required/></div>
+              <div class="form-group"><label>Phone *</label><input type="tel" name="phone" placeholder="" pattern="[0-9]{10}" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required/></div>
+            </div>
+            <div class="form-group"><label>Email *</label><input type="email" name="email" placeholder="your@email.com" required/></div>
+            <div class="form-row">
+              <div class="form-group"><label>Wedding Date</label><input type="date" name="wedding_date"/></div>
+              <div class="form-group"><label>Service</label><select name="service"><option value="">Select a Package</option><option>Pre Wedding Shoot</option><option>Wedding Photography</option><option>Cinematic Film</option><option>Drone Coverage</option><option>Full Wedding Package</option></select></div>
+            </div>
+            <div class="form-group"><label>Location / Venue</label><input type="text" name="location" placeholder="City or Venue Name"/></div>
+            <div class="form-group"><label>Your Story</label><textarea name="story" placeholder="Share your wedding vision, theme, or anything you'd like us to know..."></textarea></div>
+            <button type="submit" class="btn-submit">Send Enquiry</button>
+          </form>
+          <div class="form-success" id="formSuccess">
+            <svg viewBox="0 0 24 24" width="48" height="48" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:300;color:var(--text);margin-bottom:.5rem;">Thank You!</div>
+            <div style="font-size:.78rem;color:var(--gray);">We'll get back to you within 24 hours.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo-row">
+          <img src="assets/logo.png" alt="Logo"/>
+        </div>
+        <div class="footer-tagline">Artistry by Pradeep</div>
+        <p class="footer-desc">Capturing the most precious moments of your life with artistry, emotion, and cinematic vision. Based in Tamil Nadu, serving couples across South India.</p>
+        <div class="footer-social">
+          <a href="https://www.instagram.com/artistry_by_pradeep?igsh=MWFsMm1nczR0MjE1eg==" target="_blank" class="social-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+          <a href="https://wa.me/9176797802?text=Hello%20I%20want%20to%20book%20a%20photoshoot!" class="social-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></a>
+        </div>
+      </div>
+      <div class="footer-col"><h4>Navigation</h4><ul class="footer-links"><li><a href="#about">About Us</a></li><li><a href="#portfolio">Portfolio</a></li><li><a href="#services">Services</a></li><li><a href="#testimonials">Testimonials</a></li><li><a href="#booking">Book Now</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2025 <a href="#"></a> — Artistry by Pradeep. All rights reserved.</div>
+      <div class="footer-legal"><a href="#">Privacy Policy</a><a href="#">Terms</a><a href="#">Sitemap</a></div>
+    </div>
+  </div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

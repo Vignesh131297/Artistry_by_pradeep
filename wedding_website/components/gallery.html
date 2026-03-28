@@ -1,0 +1,123 @@
+<!-- PORTFOLIO -->
+<section id="portfolio">
+  <div class="container-wide">
+    <div class="container" style="padding-bottom:2.5rem;">
+      <div class="reveal">
+        <div class="section-tag">Our Work</div>
+        <h2 class="section-title">Moments <em>Frozen</em> in Time</h2>
+        <div class="section-divider"></div>
+      </div>
+    </div>
+    <div class="gallery-grid reveal" style="transition-delay:.3s;">
+
+      <div class="gallery-item gi-color-1" data-category="ceremony" onclick="openLightbox(0)">
+        <img src="assets/32.jpg" alt="Sacred Vows" loading="lazy"
+             onerror="this.remove()"/>
+        <div class="gallery-zoom">+</div>
+      </div>
+
+      <div class="gallery-item gi-color-2" data-category="portrait" onclick="openLightbox(1)">
+        <img src="assets/7.jpg" alt="Golden Hour" loading="lazy"
+             onerror="this.remove()"/>
+        <div class="gallery-zoom">+</div>
+      </div>
+
+      <div class="gallery-item gi-color-3" data-category="pre-wedding" onclick="openLightbox(2)">
+        <img src="assets/53.jpg" alt="Sunset" loading="lazy"
+             onerror="this.remove()"/>
+        <div class="gallery-zoom">+</div>
+      </div>
+
+      <div class="gallery-item gi-color-4" data-category="reception" onclick="openLightbox(3)">
+        <img src="assets/50.jpg" alt="First Dance" loading="lazy"
+             onerror="this.remove()"/>
+        <div class="gallery-zoom">+</div>
+      </div>
+
+      <div class="gallery-item gi-color-5" data-category="pre-wedding" onclick="openLightbox(4)">
+        <img src="assets/9.jpg" alt="Beach" loading="lazy"
+             onerror="this.remove()"/>
+        <div class="gallery-zoom">+</div>
+      </div>
+
+      <div class="gallery-item gi-color-6" data-category="ceremony" onclick="openLightbox(16)">
+        <img src="assets/3.jpg" alt="Rings" loading="lazy"
+             onerror="this.remove()"/>
+        <div class="gallery-zoom">+</div>
+      </div>
+
+      
+      <div class="gallery-item gi-color-7" data-category="ceremony" onclick="openLightbox(6)">
+          <img src='assets/1.jpg' alt="Floral" loading="lazy"
+              onerror="this.remove()"/>
+          <div class="gallery-zoom">+</div>
+        </div>
+
+      <div class="gallery-item gi-color-8" data-category="reception" onclick="openLightbox(7)">
+        <img src="assets/6.jpg" alt="Candles" loading="lazy"
+             onerror="this.remove()"/>
+        <div class="gallery-zoom">+</div>
+      </div>
+
+      <div class="gallery-item gi-color-9" data-category="ceremony" onclick="openLightbox(8)">
+        <img src="assets/36.jpg" alt="Rings" loading="lazy"
+             onerror="this.remove()"/>
+        <div class="gallery-zoom">+</div>
+      </div>
+
+      <div class="gallery-item gi-color-10" data-category="ceremony" onclick="openLightbox(14)">
+        <img src="assets/4.jpg" alt="Rings" loading="lazy"
+             onerror="this.remove()"/>
+        <div class="gallery-zoom">+</div>
+      </div>
+
+      <div class="gallery-item gi-color-11" data-category="ceremony" onclick="openLightbox(9)">
+        <img src="assets/8.jpg" alt="Rings" loading="lazy"
+             onerror="this.remove()"/>
+        <div class="gallery-zoom">+</div>
+      </div>
+
+       <div class="gallery-item gi-color-12" data-category="ceremony" onclick="openLightbox(10)">
+        <img src="assets/38.jpg" alt="Rings" loading="lazy"
+             onerror="this.remove()"/>
+        <div class="gallery-zoom">+</div>
+      </div>
+
+      <div class="gallery-item gi-color-13" data-category="ceremony" onclick="openLightbox(11)">
+        <img src="assets/24.jpg" alt="Rings" loading="lazy"
+             onerror="this.remove()"/>
+        <div class="gallery-zoom">+</div>
+      </div>
+
+      <div class="gallery-item gi-color-14" data-category="ceremony" onclick="openLightbox(13)">
+        <img src="assets/52.jpg" alt="Rings" loading="lazy"
+             onerror="this.remove()"/>
+        <div class="gallery-zoom">+</div>
+      </div>
+
+      <div class="gallery-item gi-color-15" data-category="ceremony" onclick="openLightbox(12)">
+        <img src="assets/45.jpg" alt="Rings" loading="lazy"
+             onerror="this.onerror=null; this.src='assets/45.jpg';"/>
+        <div class="gallery-zoom">+</div>
+      </div>
+
+      <div class="gallery-item gi-color-17" data-category="portrait" onclick="openLightbox(5)">
+        <img src="assets/18.jpg" alt="Embrace" loading="lazy"
+             onerror="this.remove()"/>
+        <div class="gallery-zoom">+</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- LIGHTBOX -->
+<div id="lightbox">
+  <div class="lb-inner">
+    <button class="lb-close" onclick="closeLightbox()">✕</button>
+    <button class="lb-nav lb-prev" onclick="navLightbox(-1)">‹</button>
+    <button class="lb-nav lb-next" onclick="navLightbox(1)">›</button>
+    <div class="lb-image"><img id="lbImg" src="" alt=""/></div>
+    <div class="lb-caption" id="lbCaption"></div>
+  </div>
+</div>
