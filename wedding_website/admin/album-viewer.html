@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Album Preview — Artistry by Pradeep</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Jost',sans-serif;background:#111010;min-height:100vh;display:flex;flex-direction:column}
+
+    /* TOPBAR */
+    .topbar{
+      background:#1a1a1a;border-bottom:1px solid rgba(255,255,255,.08);
+      padding:.9rem 1.8rem;display:flex;align-items:center;justify-content:space-between;
+      flex-shrink:0;
+    }
+    .brand{display:flex;align-items:center;gap:.7rem;text-decoration:none}
+    .brand img{width:36px;height:36px;border-radius:50%;object-fit:contain}
+    .brand-text{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:300;color:#fff;letter-spacing:.04em}
+    .brand-text span{color:#e05424}
+    .album-badge{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.4);background:rgba(224,84,36,.15);border:1px solid rgba(224,84,36,.3);padding:.2rem .7rem}
+
+    /* VIEWER AREA */
+    .viewer{flex:1;display:flex;flex-direction:column;align-items:center;padding:1.5rem;gap:1rem}
+
+    .album-title{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;color:#fff;letter-spacing:.04em;text-align:center}
+    .album-meta{font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.35)}
+
+    .pdf-frame{
+      width:100%;max-width:960px;flex:1;min-height:75vh;
+      background:#1a1a1a;border:1px solid rgba(255,255,255,.1);
+    }
+    .pdf-frame iframe{width:100%;height:100%;min-height:75vh;border:none}
+
+    .open-btn{
+      display:inline-flex;align-items:center;gap:.5rem;
+      padding:.75rem 2rem;background:#e05424;color:#fff;
+      font-family:'Jost',sans-serif;font-size:.72rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;
+      text-decoration:none;margin-top:.5rem;transition:background .2s;
+    }
+    .open-btn:hover{background:#c04418}
+
+    /* STATES */
+    .state-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:3rem;text-align:center}
+    .state-icon{font-size:3rem;opacity:.3}
+    .state-title{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:300;color:#fff}
+    .state-sub{font-size:.78rem;color:rgba(255,255,255,.4);max-width:380px}
+
+    /* FOOTER */
+    .foot{padding:1rem 1.8rem;border-top:1px solid rgba(255,255,255,.07);text-align:center}
+    .foot a{font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.25);text-decoration:none;transition:color .2s}
+    .foot a:hover{color:#e05424}
+    .exp-warn{
+      background:rgba(220,38,38,.12);border:1px solid rgba(220,38,38,.25);
+      color:#fca5a5;font-size:.75rem;padding:.5rem 1.2rem;
+      max-width:600px;width:100%;text-align:center;
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="brand" href="../index.html">
+    <img src="../assets/logo.png" alt="Logo" onerror="this.style.display='none'"/>
+    <div class="brand-text">Artistry by <span>Pradeep</span></div>
+  </a>
+  <div class="album-badge">Album Preview</div>
+</div>
+
+<div id="viewerRoot"></div>
+
+<div class="foot"><a href="../index.html">← Back to Website</a></div>
+
+<script src="js/db.js"></script>
+<script>
+(function(){
+  const root = document.getElementById('viewerRoot');
+  const params = new URLSearchParams(location.search);
+  const token  = params.get('t');
+
+  function showError(title, sub) {
+    root.innerHTML = `<div class="state-wrap">
+      <div class="state-icon">📷</div>
+      <div class="state-title">${title}</div>
+      <div class="state-sub">${sub}</div>
+    </div>`;
+  }
+
+  if (!token) { showError('No Album Found', 'This link appears to be invalid or broken.'); return; }
+
+  // Try to find the album in localStorage (works on same browser/device)
+  // For cross-device sharing, the PDF URL is encoded in the token (base64) as fallback
+  let album = null;
+  try { album = DB.getAlbumByToken(token); } catch(e){}
+
+  // Cross-device fallback: token format "base64url:..." carries the PDF URL
+  let pdfUrl = '', albumTitle = 'Wedding Album', customerName = '';
+  let expired = false;
+
+  if (album) {
+    pdfUrl = album.pdfUrl;
+    albumTitle = album.title || 'Wedding Album';
+    customerName = album.customerName || '';
+    if (album.expiry && new Date(album.expiry) < new Date()) expired = true;
+    // Increment view count
+    try { DB.bumpViews(token); } catch(e){}
+  } else {
+    // Try base64-encoded URL in token (cross-device fallback)
+    try {
+      const decoded = atob(token.split('__')[1] || '');
+      if (decoded.startsWith('http')) pdfUrl = decoded;
+    } catch(e){}
+    if (!pdfUrl) { showError('Album Not Found', 'This album may have been removed or the link is invalid. Please contact Artistry by Pradeep for a new link.'); return; }
+  }
+
+  // Convert Google Drive view URL to embed URL
+  function getDriveEmbedUrl(url) {
+    const m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (m) return `https://drive.google.com/file/d/${m[1]}/preview`;
+    const m2 = url.match(/id=([a-zA-Z0-9_-]+)/);
+    if (m2) return `https://drive.google.com/file/d/${m2[1]}/preview`;
+    return url;
+  }
+
+  const embedUrl = getDriveEmbedUrl(pdfUrl);
+
+  document.title = albumTitle + ' — Artistry by Pradeep';
+
+  root.innerHTML = `
+    <div class="viewer">
+      ${expired ? `<div class="exp-warn">⚠️ This album preview link has expired. Please contact Artistry by Pradeep for a renewed link.</div>` : ''}
+      <div class="album-title">${albumTitle}</div>
+      ${customerName ? `<div class="album-meta">${customerName}</div>` : ''}
+      <div class="pdf-frame">
+        <iframe src="${embedUrl}" allowfullscreen allow="autoplay"></iframe>
+      </div>
+      <a class="open-btn" href="${pdfUrl}" target="_blank">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Open Full Album
+      </a>
+      <div style="font-size:.65rem;color:rgba(255,255,255,.2);letter-spacing:.1em;text-transform:uppercase">
+        Delivered exclusively by Artistry by Pradeep
+      </div>
+    </div>`;
+})();
+</script>
+</body>
+</html>

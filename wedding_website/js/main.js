@@ -256,3 +256,41 @@ document.addEventListener('DOMContentLoaded', function() {
     setupReviewQRCode();
     loadApprovedReviews();
 });
+
+/* ---- SECRET ADMIN ACCESS ---- */
+// Method 1: Press Ctrl + Shift + A
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+        window.location.href = localStorage.getItem('abp_s') === '1'
+            ? 'admin/app.html' : 'admin/index.html';
+    }
+});
+
+// Method 2: Click footer logo 5 times quickly (also works on mobile via tap)
+(function() {
+    let clicks = 0, timer = null;
+    const logo = document.getElementById('footerLogo');
+    if (!logo) return;
+    function handleTap() {
+        clicks++;
+        clearTimeout(timer);
+        timer = setTimeout(function() { clicks = 0; }, 2500);
+        if (clicks >= 5) {
+            clicks = 0;
+            window.location.href = localStorage.getItem('abp_s') === '1'
+                ? 'admin/app.html' : 'admin/index.html';
+        }
+    }
+    logo.addEventListener('click', handleTap);
+    logo.addEventListener('touchend', function(e) { e.preventDefault(); handleTap(); });
+})();
+
+// Method 3: Show Admin nav link in footer only when logged in as admin
+(function() {
+    const link = document.getElementById('adminNavLink');
+    if (!link) return;
+    if (localStorage.getItem('abp_s') === '1' &&
+        localStorage.getItem('abp_u') === 'artistrybypradeep@gmail.com') {
+        link.style.display = 'inline';
+    }
+})();
