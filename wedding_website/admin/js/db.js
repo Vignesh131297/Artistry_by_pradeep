@@ -1,6 +1,6 @@
 /* ── Artistry Admin — localStorage Data Layer ── */
 const DB = {
-  P: 'abp_', // prefix
+  P: 'abp_',
 
   _r(k)     { try { return JSON.parse(localStorage.getItem(this.P+k)); } catch { return null; } },
   _w(k,v)   { localStorage.setItem(this.P+k, JSON.stringify(v)); },
@@ -29,9 +29,15 @@ const DB = {
     const list=this.customers();
     const i=list.findIndex(x=>x.id===c.id);
     if(i>=0)list[i]=c; else list.push(c);
-    this._w('customers',list); return c;
+    this._w('customers',list);
+    Cloud.push('customers',list);
+    return c;
   },
-  delCustomer(id){ this._w('customers',this.customers().filter(c=>c.id!==id)); },
+  delCustomer(id){
+    const list=this.customers().filter(c=>c.id!==id);
+    this._w('customers',list);
+    Cloud.push('customers',list);
+  },
   getCustomer(id){ return this.customers().find(c=>c.id===id); },
 
   /* ─── ORDERS ─── */
@@ -40,9 +46,15 @@ const DB = {
     const list=this.orders();
     const i=list.findIndex(x=>x.id===o.id);
     if(i>=0)list[i]=o; else list.push(o);
-    this._w('orders',list); return o;
+    this._w('orders',list);
+    Cloud.push('orders',list);
+    return o;
   },
-  delOrder(id)   { this._w('orders',this.orders().filter(o=>o.id!==id)); },
+  delOrder(id)   {
+    const list=this.orders().filter(o=>o.id!==id);
+    this._w('orders',list);
+    Cloud.push('orders',list);
+  },
   getOrder(id)   { return this.orders().find(o=>o.id===id); },
 
   /* ─── INVOICES ─── */
@@ -52,9 +64,15 @@ const DB = {
     const list=this.invoices();
     const i=list.findIndex(x=>x.id===v.id);
     if(i>=0)list[i]=v; else list.push(v);
-    this._w('invoices',list); return v;
+    this._w('invoices',list);
+    Cloud.push('invoices',list);
+    return v;
   },
-  delInvoice(id) { this._w('invoices',this.invoices().filter(v=>v.id!==id)); },
+  delInvoice(id) {
+    const list=this.invoices().filter(v=>v.id!==id);
+    this._w('invoices',list);
+    Cloud.push('invoices',list);
+  },
   getInvoice(id) { return this.invoices().find(v=>v.id===id); },
 
   /* ─── PACKAGES ─── */
@@ -71,8 +89,13 @@ const DB = {
     const i=list.findIndex(x=>x.id===p.id);
     if(i>=0)list[i]=p; else list.push(p);
     this._w('packages',list);
+    Cloud.push('packages',list);
   },
-  delPackage(id) { this._w('packages',this.packages().filter(p=>p.id!==id)); },
+  delPackage(id) {
+    const list=this.packages().filter(p=>p.id!==id);
+    this._w('packages',list);
+    Cloud.push('packages',list);
+  },
 
   /* ─── ALBUMS ─── */
   albums()       { return this._r('albums')||[]; },
@@ -80,14 +103,20 @@ const DB = {
     const list=this.albums();
     const i=list.findIndex(x=>x.id===a.id);
     if(i>=0)list[i]=a; else list.push(a);
-    this._w('albums',list); return a;
+    this._w('albums',list);
+    Cloud.push('albums',list);
+    return a;
   },
-  delAlbum(id)   { this._w('albums',this.albums().filter(a=>a.id!==id)); },
+  delAlbum(id)   {
+    const list=this.albums().filter(a=>a.id!==id);
+    this._w('albums',list);
+    Cloud.push('albums',list);
+  },
   getAlbumByToken(t){ return this.albums().find(a=>a.token===t); },
   bumpViews(t)   {
     const list=this.albums();
     const i=list.findIndex(a=>a.token===t);
-    if(i>=0){list[i].views=(list[i].views||0)+1;this._w('albums',list);}
+    if(i>=0){list[i].views=(list[i].views||0)+1;this._w('albums',list);Cloud.push('albums',list);}
   },
 
   /* ─── EVENTS (calendar) ─── */
@@ -96,9 +125,15 @@ const DB = {
     const list=this.events();
     const i=list.findIndex(x=>x.id===e.id);
     if(i>=0)list[i]=e; else list.push(e);
-    this._w('events',list); return e;
+    this._w('events',list);
+    Cloud.push('events',list);
+    return e;
   },
-  delEvent(id)   { this._w('events',this.events().filter(e=>e.id!==id)); },
+  delEvent(id)   {
+    const list=this.events().filter(e=>e.id!==id);
+    this._w('events',list);
+    Cloud.push('events',list);
+  },
 
   /* ─── DASHBOARD STATS ─── */
   stats() {
@@ -107,13 +142,11 @@ const DB = {
     const customers= this.customers();
     const now      = new Date();
     const m        = now.getMonth(), y = now.getFullYear();
-
-    const activeOrders   = orders.filter(o=>!['completed'].includes(o.status)).length;
-    const monthRevenue   = invoices
+    const activeOrders  = orders.filter(o=>!['completed'].includes(o.status)).length;
+    const monthRevenue  = invoices
       .filter(v=>{ const d=new Date(v.createdAt); return d.getMonth()===m&&d.getFullYear()===y; })
       .reduce((s,v)=>s+(v.paid||0),0);
-    const outstanding    = invoices.reduce((s,v)=>s+((v.total||0)-(v.paid||0)),0);
-
+    const outstanding   = invoices.reduce((s,v)=>s+((v.total||0)-(v.paid||0)),0);
     return { customers: customers.length, activeOrders, monthRevenue, outstanding };
   },
 
@@ -131,5 +164,69 @@ const DB = {
       res.push({ label: d.toLocaleString('en-IN',{month:'short'}), value: rev });
     }
     return res;
+  }
+};
+
+/* ══════════════════════════════════════════════
+   CLOUD SYNC — Firebase Realtime Database
+   Data saves to cloud on every change.
+   On login, latest data pulled from cloud.
+   ══════════════════════════════════════════════ */
+const Cloud = {
+  get on() {
+    return typeof FB_DB_URL !== 'undefined' && FB_DB_URL && FB_DB_URL.length > 10;
+  },
+
+  /* Push one collection to Firebase (background, silent) */
+  push(key, data) {
+    if (!this.on) return;
+    fetch(FB_DB_URL + '/abp/' + key + '.json', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    }).catch(() => {});
+  },
+
+  /* Pull all collections from Firebase */
+  async pull() {
+    if (!this.on) return null;
+    try {
+      const r = await fetch(FB_DB_URL + '/abp.json');
+      if (!r.ok) return null;
+      const d = await r.json();
+      return d;
+    } catch(e) { return null; }
+  },
+
+  /* Pull from Firebase and update localStorage */
+  async syncToLocal() {
+    const data = await this.pull();
+    if (!data) return false;
+    const keys = ['customers','orders','invoices','packages','albums','events'];
+    keys.forEach(k => {
+      if (data[k] != null) {
+        const arr = Array.isArray(data[k]) ? data[k] : Object.values(data[k]);
+        DB._w(k, arr);
+      }
+    });
+    return true;
+  },
+
+  /* Push ALL local data to Firebase (full backup) */
+  pushAll() {
+    if (!this.on) return;
+    const payload = {
+      customers: DB.customers(),
+      orders:    DB.orders(),
+      invoices:  DB.invoices(),
+      packages:  DB.packages(),
+      albums:    DB.albums(),
+      events:    DB.events()
+    };
+    fetch(FB_DB_URL + '/abp.json', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).catch(() => {});
   }
 };

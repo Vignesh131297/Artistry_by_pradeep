@@ -19,6 +19,16 @@ const App = {
     this.refreshBadge();
     this.route(location.hash.slice(1)||'dashboard');
     window.addEventListener('hashchange',()=>{ this.route(location.hash.slice(1)||'dashboard'); this.refreshBadge(); });
+    // Pull latest data from Firebase cloud on every login
+    if (Cloud.on) {
+      Cloud.syncToLocal().then(ok => {
+        if (ok) {
+          this.route(location.hash.slice(1)||'dashboard');
+          this.refreshBadge();
+          this.toast('Data synced from cloud','ok');
+        }
+      });
+    }
     document.querySelectorAll('.nav-item[data-page]').forEach(el=>{
       el.addEventListener('click',()=>{ location.hash=el.dataset.page; this.closeSidebar(); });
     });
