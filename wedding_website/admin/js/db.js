@@ -101,17 +101,23 @@ const DB = {
   albums()       { return this._r('albums')||[]; },
   saveAlbum(a)   {
     const list=this.albums();
-    const i=list.findIndex(x=>x.id===a.id);
-    if(i>=0)list[i]=a; else list.push(a);
+    // Never persist heavy PDF blobs into localStorage / Firebase metadata
+    const meta = { ...a };
+    delete meta.pdfBlob;
+    delete meta.pdfData;
+    const i=list.findIndex(x=>x.id===meta.id);
+    if(i>=0)list[i]=meta; else list.push(meta);
     this._w('albums',list);
     Cloud.push('albums',list);
-    return a;
+    return meta;
   },
   delAlbum(id)   {
     const list=this.albums().filter(a=>a.id!==id);
     this._w('albums',list);
     Cloud.push('albums',list);
+    AlbumFiles.del(id);
   },
+  getAlbum(id)   { return this.albums().find(a=>a.id===id); },
   getAlbumByToken(t){ return this.albums().find(a=>a.token===t); },
   bumpViews(t)   {
     const list=this.albums();
@@ -164,6 +170,55 @@ const DB = {
       res.push({ label: d.toLocaleString('en-IN',{month:'short'}), value: rev });
     }
     return res;
+  }
+};
+
+/* ══════════════════════════════════════════════
+   ALBUM PDF FILES — IndexedDB (keeps large PDFs
+   out of localStorage / Firebase JSON sync)
+   ══════════════════════════════════════════════ */
+const AlbumFiles = {
+  _db: null,
+  _open() {
+    if (this._db) return Promise.resolve(this._db);
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open('abp_album_files', 1);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if (!db.objectStoreNames.contains('pdfs')) db.createObjectStore('pdfs');
+      };
+      req.onsuccess = () => { this._db = req.result; resolve(this._db); };
+      req.onerror = () => reject(req.error || new Error('IndexedDB open failed'));
+    });
+  },
+  async put(id, blob, meta = {}) {
+    const db = await this._open();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('pdfs', 'readwrite');
+      tx.objectStore('pdfs').put({ blob, fileName: meta.fileName || 'album.pdf', savedAt: Date.now() }, id);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  },
+  async get(id) {
+    const db = await this._open();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('pdfs', 'readonly');
+      const req = tx.objectStore('pdfs').get(id);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => reject(req.error);
+    });
+  },
+  async del(id) {
+    try {
+      const db = await this._open();
+      return new Promise((resolve) => {
+        const tx = db.transaction('pdfs', 'readwrite');
+        tx.objectStore('pdfs').delete(id);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => resolve();
+      });
+    } catch (e) { /* ignore */ }
   }
 };
 

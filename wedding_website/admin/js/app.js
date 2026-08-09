@@ -316,7 +316,7 @@ const Modules = {
     <div class="sec-head">
       <div class="sec-title">Album Delivery</div>
       <button class="btn btn-primary" onclick="Albums.openAdd()">
-        ${H.svgIcon('plus')} Share Album
+        ${H.svgIcon('plus')} Add Album
       </button>
     </div>
     <div class="album-grid" id="albumGrid">${Albums.cards()}</div>`;
@@ -609,31 +609,7 @@ const Orders = {
     if (!o) return;
     const cust = DB.getCustomer(o.customerId) || { name: o.customerName, phone:'' };
     if (!cust.phone) { App.toast('No phone number for this customer','err'); return; }
-    const balance = (o.total||0) - (o.advance||0);
-    const msg =
-`Hi ${cust.name}! 👋
-
-Thank you for choosing *Artistry by Pradeep* 📸
-
-*Booking Details*
-━━━━━━━━━━━━━━━━━
-🎉 Event   : ${o.eventType||'Wedding'}
-📅 Date    : ${o.eventDate ? new Date(o.eventDate).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : '—'}
-📍 Venue   : ${o.location||'—'}
-📦 Package : ${o.packageName||'—'}
-━━━━━━━━━━━━━━━━━
-💰 Total   : ₹${Number(o.total||0).toLocaleString('en-IN')}
-✅ Advance : ₹${Number(o.advance||0).toLocaleString('en-IN')}
-💳 Balance : ₹${Number(balance).toLocaleString('en-IN')}
-━━━━━━━━━━━━━━━━━
-
-For any queries feel free to reach us.
-Thank you! 🙏
-
-*— Pradeep*
-*Artistry by Pradeep*
-📞 9962797802`;
-    window.open('https://wa.me/91'+cust.phone+'?text='+encodeURIComponent(msg), '_blank');
+    window.open('https://wa.me/91'+String(cust.phone).replace(/\D/g,''), '_blank');
   },
 
   shareQuote(id) {
@@ -705,7 +681,6 @@ Thank you! 🙏
   .btn-p{padding:9px 18px;font-size:12px;font-weight:600;border:none;cursor:pointer;letter-spacing:.06em;border-radius:3px;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
   .btn-print{background:#e05424;color:#fff}.btn-print:hover{background:#c04418}
   .btn-wa-pdf{background:#25D366;color:#fff}.btn-wa-pdf:hover{background:#1da851}
-  .btn-wa-txt{background:#fff;color:#25D366;border:2px solid #25D366}.btn-wa-txt:hover{background:#f0fff4}
   .loading-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:14px;color:#fff;font-size:14px;font-weight:600}
   .spinner{width:40px;height:40px;border:4px solid rgba(255,255,255,.3);border-top-color:#25D366;border-radius:50%;animation:spin .8s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
@@ -716,12 +691,23 @@ Thank you! 🙏
   <div id="loadingMsg">Generating PDF…</div>
 </div>
 <div class="no-print">
-  <button class="btn-p btn-print" onclick="window.print()">&#x1F4BE; Save as PDF</button>
+  <button class="btn-p btn-print" id="savePdfBtn" onclick="saveAsPdf()">&#x1F4BE; Save as PDF</button>
   <button class="btn-p btn-wa-pdf" id="sharePdfBtn" onclick="sharePdfToWA()">&#x1F4CE; Share PDF on WhatsApp</button>
-  <button class="btn-p btn-wa-txt" onclick="shareTextWA()">&#x1F4AC; Send Text Only</button>
 </div>
 <script>
+const PDF_FILENAME = ${JSON.stringify(quoteNum + '.pdf')};
+const WA_PHONE = ${JSON.stringify(String(cust.phone || '').replace(/\\D/g, ''))};
+
+async function waitForLibs(){
+  for(let i=0;i<60;i++){
+    if(window.html2canvas && window.jspdf) return;
+    await new Promise(r=>setTimeout(r,100));
+  }
+  throw new Error('PDF libraries failed to load. Check your internet connection and try again.');
+}
+
 async function buildPdf(){
+  await waitForLibs();
   const canvas = await html2canvas(document.querySelector('.page'),{scale:2,useCORS:true,logging:false,backgroundColor:'#fff'});
   const {jsPDF} = window.jspdf;
   const pdf = new jsPDF('p','mm','a4');
@@ -742,38 +728,96 @@ async function buildPdf(){
   return pdf;
 }
 
+function isIOS(){
+  return /iPad|iPhone|iPod/i.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+}
+
+function downloadPdfBlob(blob, filename){
+  const url = URL.createObjectURL(blob);
+  if(isIOS()){
+    // iOS often ignores <a download> — open PDF so user can Share/Save
+    const opened = window.open(url, '_blank');
+    if(!opened){
+      showToast('Tap and hold the PDF, then choose Save / Share');
+      window.location.href = url;
+    } else {
+      showToast('PDF opened — use Share / Save in the browser menu');
+    }
+    setTimeout(()=>URL.revokeObjectURL(url), 60000);
+    return;
+  }
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.rel = 'noopener';
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{
+    try{ document.body.removeChild(a); }catch(e){}
+    URL.revokeObjectURL(url);
+  }, 4000);
+}
+
+async function canSharePdfFile(file){
+  try{
+    return !!(navigator.share && navigator.canShare && navigator.canShare({files:[file]}));
+  }catch(e){
+    return false;
+  }
+}
+
+async function saveAsPdf(){
+  const overlay=document.getElementById('loadingOverlay');
+  const msg_el=document.getElementById('loadingMsg');
+  const btn=document.getElementById('savePdfBtn');
+  overlay.style.display='flex';
+  if(btn) btn.disabled=true;
+  try{
+    msg_el.textContent='Generating PDF…';
+    const pdf = await buildPdf();
+    const blob = pdf.output('blob');
+    downloadPdfBlob(blob, PDF_FILENAME);
+    if(!isIOS()) showToast('PDF downloaded successfully');
+  }catch(err){
+    alert('Could not save PDF: '+(err.message||err));
+    console.error(err);
+  }
+  overlay.style.display='none';
+  if(btn) btn.disabled=false;
+}
+
 async function sharePdfToWA(){
   const overlay=document.getElementById('loadingOverlay');
   const msg_el=document.getElementById('loadingMsg');
   const btn=document.getElementById('sharePdfBtn');
   overlay.style.display='flex'; btn.disabled=true;
   try {
-    msg_el.textContent='Capturing page…';
+    msg_el.textContent='Generating PDF…';
     const pdf = await buildPdf();
-    msg_el.textContent='Opening WhatsApp…';
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    if(isMobile){
-      // Mobile: Web Share API → PDF attaches directly in WhatsApp
-      const blob = pdf.output('blob');
-      const file = new File([blob],'${quoteNum}.pdf',{type:'application/pdf'});
-      if(navigator.canShare && navigator.canShare({files:[file]})){
-        overlay.style.display='none';
-        await navigator.share({
-          files:[file],
-          title:'Quote — Artistry by Pradeep',
-          text:'Hi ${cust.name}, please find your quote from Artistry by Pradeep.'
-        });
+    const blob = pdf.output('blob');
+    const file = new File([blob], PDF_FILENAME, {type:'application/pdf'});
+
+    // Prefer native share sheet with PDF only (no text template)
+    if(await canSharePdfFile(file)){
+      overlay.style.display='none';
+      try{
+        await navigator.share({ files:[file], title: PDF_FILENAME });
         btn.disabled=false; return;
+      }catch(shareErr){
+        if(shareErr && shareErr.name==='AbortError'){ btn.disabled=false; return; }
       }
     }
-    // Desktop fallback: download PDF + open WhatsApp chat
-    pdf.save('${quoteNum}.pdf');
-    await new Promise(r=>setTimeout(r,700));
-    const waMsg='Hi ${cust.name}! 👋\\n\\nPlease find your quote *${quoteNum}* from *Artistry by Pradeep* 📸\\n\\n🎉 Event   : ${o.eventType||'Wedding'}\\n📅 Date    : ${o.eventDate?new Date('${o.eventDate}').toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}):'—'}\\n📦 Package : ${o.packageName||'—'}\\n💰 Total   : ₹${Number(o.total||0).toLocaleString('en-IN')}\\n💳 Balance : ₹${Number(balance).toLocaleString('en-IN')}\\n\\nPlease find the PDF quote attached.\\n\\nThank you! 🙏\\n*— Pradeep* | 📞 9962797802';
-    window.open('https://wa.me/91${cust.phone}?text='+encodeURIComponent(waMsg),'_blank');
-    showToast('📥 PDF saved to Downloads — tap 📎 in WhatsApp chat to attach it');
+
+    // Fallback: download PDF, then open empty WhatsApp chat
+    msg_el.textContent='Preparing download…';
+    downloadPdfBlob(blob, PDF_FILENAME);
+    await new Promise(r=>setTimeout(r,500));
+    const phone = WA_PHONE ? ('91'+WA_PHONE.replace(/^91/,'')) : '';
+    window.open(phone ? ('https://wa.me/'+phone) : 'https://wa.me/', '_blank');
+    showToast('PDF saved — in WhatsApp tap 📎 and attach the downloaded PDF');
   } catch(err){
-    if(err.name!=='AbortError'){ alert('Error: '+err.message); console.error(err); }
+    if(!err || err.name!=='AbortError'){ alert('Error: '+(err && err.message ? err.message : err)); console.error(err); }
   }
   overlay.style.display='none'; btn.disabled=false;
 }
@@ -781,14 +825,11 @@ async function sharePdfToWA(){
 function showToast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg; t.style.display='block';
-  setTimeout(()=>t.style.display='none',6000);
-}
-function shareTextWA(){
-  window.open('https://wa.me/91${cust.phone}','_blank');
+  setTimeout(()=>t.style.display='none',7000);
 }
 </script>
 <div id="toast" style="display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:12px 20px;border-radius:4px;font-size:12px;z-index:9999;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,.3)">
-  ✅ PDF saved to Downloads &nbsp;|&nbsp; WhatsApp is open — tap 📎 clip icon to attach the PDF
+  ✅ PDF downloaded successfully
 </div>
 <div class="page">
   <div class="header">
@@ -1308,12 +1349,9 @@ const Inv = {
   shareWA(id) {
     const v=DB.getInvoice(id);
     if(!v) return;
-    const bal=(v.total||0)-(v.paid||0);
-    const msg=`*Invoice ${v.number} — Artistry by Pradeep*\n\nDear ${v.customerName},\n\nPlease find your invoice details below:\n\n` +
-      (v.items||[]).map(it=>`• ${it.desc}: ${H.money(it.qty*it.rate)}`).join('\n') +
-      `\n\n*Total: ${H.money(v.total)}*\nPaid: ${H.money(v.paid)}\n*Balance Due: ${H.money(bal)}*\n\nThank you for choosing Artistry by Pradeep! 📸`;
-    const custPhone = DB.getCustomer(v.customerId)?.phone||'';
-    window.open(`https://wa.me/91${custPhone}?text=${encodeURIComponent(msg)}`,'_blank');
+    const custPhone = String(DB.getCustomer(v.customerId)?.phone||'').replace(/\D/g,'');
+    if(!custPhone){ App.toast('No phone number for this customer','err'); return; }
+    window.open('https://wa.me/91'+custPhone,'_blank');
   },
 
   del(id) {
@@ -1410,17 +1448,29 @@ const Pkgs = {
    ALBUMS MODULE
    ════════════════════════════════════════ */
 const Albums = {
+  _fmtSize(bytes) {
+    if (!bytes && bytes !== 0) return '';
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  },
+
   cards() {
     const list=DB.albums();
     if(!list.length) return `<div class="empty" style="grid-column:1/-1">
       <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-      <div class="empty-title">No albums shared yet</div>
-      <div class="empty-sub">Upload a PDF URL and share a preview link with your client</div>
+      <div class="empty-title">No albums saved yet</div>
+      <div class="empty-sub">Upload a PDF album, save it, then share to the customer on WhatsApp</div>
     </div>`;
-    const base=location.origin+location.pathname.replace('app.html','');
     return list.map(a=>{
-      const link=`${base}album-viewer.html?t=${a.token}`;
-      const expired=a.expiry&&new Date(a.expiry)<new Date();
+      const forever = a.forever || !a.expiry;
+      const expired = !forever && a.expiry && new Date(a.expiry) < new Date();
+      const status = forever
+        ? '<span style="color:#16a34a">Forever</span>'
+        : (expired ? '<span style="color:var(--danger)">Expired</span>' : H.date(a.expiry));
+      const fileLabel = a.fileName
+        ? `${H.esc(a.fileName)}${a.fileSize ? ' · ' + this._fmtSize(a.fileSize) : ''}`
+        : (a.pdfUrl ? 'External link' : 'No PDF');
       return `
       <div class="album-card">
         <div class="album-thumb">
@@ -1428,14 +1478,12 @@ const Albums = {
         </div>
         <div class="album-body">
           <div class="album-title">${H.esc(a.title)}</div>
-          <div class="album-meta">${H.esc(a.customerName||'—')} · Views: ${a.views||0} · ${expired?'<span style="color:var(--danger)">Expired</span>':H.date(a.expiry)}</div>
-          <div class="album-link-row">
-            <span id="alink-${a.id}">${link}</span>
-            <button onclick="Albums.copy('${a.id}','${link}')">${H.svgIcon('copy')} Copy</button>
-          </div>
+          <div class="album-meta">${H.esc(a.customerName||'—')} · ${status}</div>
+          <div class="album-file-row" title="${H.esc(a.fileName||a.pdfUrl||'')}">${fileLabel}</div>
           <div class="album-actions">
-            <a class="btn btn-outline btn-sm" href="${H.esc(a.pdfUrl)}" target="_blank">${H.svgIcon('eye')} Preview</a>
+            <button class="btn btn-outline btn-sm" onclick="Albums.preview('${a.id}')">${H.svgIcon('eye')} Preview</button>
             <button class="btn btn-danger btn-sm" onclick="Albums.del('${a.id}')">${H.svgIcon('del')} Delete</button>
+            <button class="btn btn-wa-share btn-sm" onclick="Albums.share('${a.id}')">${H.svgIcon('wa')} Share</button>
           </div>
         </div>
       </div>`;
@@ -1443,60 +1491,149 @@ const Albums = {
   },
 
   openAdd() {
-    App.modal('Share Album', `
+    App.modal('Save Album', `
       <div class="form-grid">
         <div class="form-group"><label class="form-label">Album Title *</label><input class="form-control" id="aTitle" placeholder="Mr. & Mrs. Kumar Wedding Album"/></div>
-        <div class="form-grid fg2">
-          <div class="form-group"><label class="form-label">Customer</label>
-            <select class="form-control" id="aCust"><option value="">—</option>${H.customerSelect()}</select>
-          </div>
-          <div class="form-group"><label class="form-label">Expiry (days)</label>
-            <input class="form-control" id="aExpiry" type="number" value="30" min="1"/>
-          </div>
+        <div class="form-group"><label class="form-label">Customer</label>
+          <select class="form-control" id="aCust"><option value="">—</option>${H.customerSelect()}</select>
+          <small style="font-size:.65rem;color:var(--gray);margin-top:.3rem;display:block">Select customer so Share can open their WhatsApp</small>
         </div>
         <div class="form-group">
-          <label class="form-label">PDF / Album URL *</label>
-          <input class="form-control" id="aPdf" placeholder="Paste Google Drive PDF link or any public URL"/>
-          <small style="font-size:.65rem;color:var(--gray);margin-top:.3rem;display:block">Google Drive: share → "Anyone with the link" → copy the direct link</small>
+          <label class="form-label">PDF File *</label>
+          <label class="file-upload" for="aPdfFile">
+            <input type="file" id="aPdfFile" accept="application/pdf,.pdf" onchange="Albums.onFilePick(this)"/>
+            <span class="file-upload-btn">Choose PDF</span>
+            <span class="file-upload-name" id="aPdfName">No file selected</span>
+          </label>
+          <small style="font-size:.65rem;color:var(--gray);margin-top:.3rem;display:block">Upload the album PDF · access is forever (no expiry)</small>
         </div>
       </div>
       <div class="modal-foot" style="padding:0;margin-top:1.2rem">
         <button class="btn btn-ghost" onclick="App.closeModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="Albums.save()">Generate Link</button>
+        <button class="btn btn-primary" id="aSaveBtn" onclick="Albums.save()">Save</button>
       </div>`);
   },
 
-  save() {
-    const title=document.getElementById('aTitle').value.trim();
-    const pdfUrl=document.getElementById('aPdf').value.trim();
-    if(!title||!pdfUrl){App.toast('Title and URL are required','err');return;}
-    const custId=document.getElementById('aCust').value;
-    const cust=custId?DB.getCustomer(custId):null;
-    const days=Number(document.getElementById('aExpiry').value)||30;
-    const expiry=new Date();expiry.setDate(expiry.getDate()+days);
-    const token=DB.uid()+DB.uid();
-    const a={
-      id:DB.uid(), title, customerId:custId, customerName:cust?cust.name:'',
-      pdfUrl, token, expiry:expiry.toISOString(), views:0, createdAt:new Date().toISOString()
-    };
-    DB.saveAlbum(a);
-    App.closeModal();
-    App.toast('Album link generated!','ok');
-    document.getElementById('albumGrid').innerHTML=this.cards();
+  onFilePick(input) {
+    const nameEl = document.getElementById('aPdfName');
+    const file = input.files && input.files[0];
+    if (!nameEl) return;
+    nameEl.textContent = file ? `${file.name} (${this._fmtSize(file.size)})` : 'No file selected';
   },
 
-  copy(id, link) {
-    navigator.clipboard.writeText(link).then(()=>App.toast('Link copied!','ok')).catch(()=>{
-      const el=document.getElementById('alink-'+id);
-      if(el){const r=document.createRange();r.selectNode(el);window.getSelection().removeAllRanges();window.getSelection().addRange(r);}
-    });
+  async save() {
+    const title = document.getElementById('aTitle').value.trim();
+    const fileInput = document.getElementById('aPdfFile');
+    const file = fileInput && fileInput.files && fileInput.files[0];
+    if (!title) { App.toast('Album title is required', 'err'); return; }
+    if (!file) { App.toast('Please choose a PDF file', 'err'); return; }
+    const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+    if (!isPdf) { App.toast('Only PDF files are allowed', 'err'); return; }
+    if (file.size > 40 * 1024 * 1024) { App.toast('PDF is too large (max 40 MB)', 'err'); return; }
+
+    const btn = document.getElementById('aSaveBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+
+    try {
+      const custId = document.getElementById('aCust').value;
+      const cust = custId ? DB.getCustomer(custId) : null;
+      const id = DB.uid();
+      await AlbumFiles.put(id, file, { fileName: file.name });
+      const a = {
+        id,
+        title,
+        customerId: custId || '',
+        customerName: cust ? cust.name : '',
+        fileName: file.name,
+        fileSize: file.size,
+        pdfUrl: '',
+        token: DB.uid() + DB.uid(),
+        expiry: null,
+        forever: true,
+        views: 0,
+        createdAt: new Date().toISOString()
+      };
+      DB.saveAlbum(a);
+      App.closeModal();
+      App.toast('Album saved!', 'ok');
+      document.getElementById('albumGrid').innerHTML = this.cards();
+    } catch (err) {
+      console.error(err);
+      App.toast('Could not save PDF: ' + (err.message || err), 'err');
+      if (btn) { btn.disabled = false; btn.textContent = 'Save'; }
+    }
+  },
+
+  async preview(id) {
+    const a = DB.getAlbum(id);
+    if (!a) return;
+    try {
+      const stored = await AlbumFiles.get(id);
+      if (stored && stored.blob) {
+        const url = URL.createObjectURL(stored.blob);
+        window.open(url, '_blank');
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+        return;
+      }
+    } catch (e) { console.error(e); }
+    if (a.pdfUrl) { window.open(a.pdfUrl, '_blank'); return; }
+    App.toast('PDF file not found on this device', 'err');
+  },
+
+  async share(id) {
+    const a = DB.getAlbum(id);
+    if (!a) return;
+    const cust = a.customerId ? DB.getCustomer(a.customerId) : null;
+    const phoneRaw = String((cust && cust.phone) || '').replace(/\D/g, '');
+    if (!phoneRaw) {
+      App.toast('Add a customer with phone number to share on WhatsApp', 'err');
+      return;
+    }
+    const phone = '91' + phoneRaw.replace(/^91/, '');
+
+    try {
+      const stored = await AlbumFiles.get(id);
+      if (stored && stored.blob) {
+        const fileName = a.fileName || stored.fileName || 'album.pdf';
+        const file = new File([stored.blob], fileName, { type: 'application/pdf' });
+        let canFiles = false;
+        try { canFiles = !!(navigator.share && navigator.canShare && navigator.canShare({ files: [file] })); } catch (e) { canFiles = false; }
+        if (canFiles) {
+          await navigator.share({ files: [file], title: fileName });
+          App.toast('Shared!', 'ok');
+          return;
+        }
+        // Fallback: download PDF, open empty WhatsApp chat
+        const url = URL.createObjectURL(stored.blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => { try { document.body.removeChild(link); } catch (e) {} URL.revokeObjectURL(url); }, 4000);
+        window.open('https://wa.me/' + phone, '_blank');
+        App.toast('PDF downloaded — in WhatsApp tap 📎 to attach it', 'ok');
+        return;
+      }
+    } catch (err) {
+      if (err && err.name === 'AbortError') return;
+      console.error(err);
+    }
+
+    // Legacy albums that only have an external URL — open chat only (no template)
+    if (a.pdfUrl) {
+      window.open('https://wa.me/' + phone, '_blank');
+      return;
+    }
+    App.toast('PDF file not found on this device. Re-save the album PDF.', 'err');
   },
 
   del(id) {
-    if(!confirm('Delete this album link?')) return;
+    if (!confirm('Delete this album?')) return;
     DB.delAlbum(id);
     App.toast('Album deleted');
-    document.getElementById('albumGrid').innerHTML=this.cards();
+    document.getElementById('albumGrid').innerHTML = this.cards();
   }
 };
 

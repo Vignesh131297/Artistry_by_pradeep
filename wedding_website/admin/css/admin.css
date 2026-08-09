@@ -345,11 +345,20 @@ select.form-control{
 .album-thumb svg{width:44px;height:44px;stroke:var(--orange);fill:none;opacity:.45}
 .album-body{padding:1rem}
 .album-title{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:300;margin-bottom:.25rem}
-.album-meta{font-size:.68rem;color:var(--gray);margin-bottom:.7rem}
+.album-meta{font-size:.68rem;color:var(--gray);margin-bottom:.55rem}
+.album-file-row{font-size:.65rem;color:var(--gray);background:var(--bg);border:1px solid var(--border);padding:.4rem .65rem;margin-bottom:.7rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .album-link-row{display:flex;align-items:center;gap:.4rem;background:var(--bg);border:1px solid var(--border);padding:.35rem .6rem;margin-bottom:.7rem;overflow:hidden}
 .album-link-row span{flex:1;font-size:.65rem;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .album-link-row button{background:none;border:none;cursor:pointer;color:var(--orange);font-size:.65rem;padding:0;flex-shrink:0}
-.album-actions{display:flex;gap:.5rem}
+.album-actions{display:flex;gap:.5rem;flex-wrap:wrap}
+.btn-wa-share{background:#25D366;color:#fff;border:1px solid #25D366}
+.btn-wa-share:hover{background:#1da851;border-color:#1da851;color:#fff}
+.btn-wa-share svg{stroke:none;fill:currentColor}
+.file-upload{display:flex;align-items:center;gap:.7rem;border:1px dashed var(--border);padding:.65rem .8rem;background:var(--bg);cursor:pointer}
+.file-upload:hover{border-color:rgba(224,84,36,.45)}
+.file-upload input{display:none}
+.file-upload-btn{flex-shrink:0;background:var(--orange);color:#fff;font-size:.68rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:.45rem .8rem;border:none}
+.file-upload-name{font-size:.72rem;color:var(--gray);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* ── EMPTY STATE ── */
 .empty{text-align:center;padding:3.5rem 2rem;color:var(--gray)}

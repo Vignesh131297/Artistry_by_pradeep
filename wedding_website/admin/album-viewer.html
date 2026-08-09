@@ -102,7 +102,9 @@
     pdfUrl = album.pdfUrl;
     albumTitle = album.title || 'Wedding Album';
     customerName = album.customerName || '';
-    if (album.expiry && new Date(album.expiry) < new Date()) expired = true;
+    // Forever albums (no expiry / forever flag) never expire
+    const forever = album.forever || !album.expiry;
+    if (!forever && album.expiry && new Date(album.expiry) < new Date()) expired = true;
     // Increment view count
     try { DB.bumpViews(token); } catch(e){}
   } else {
