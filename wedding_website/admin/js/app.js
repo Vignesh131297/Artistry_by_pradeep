@@ -710,7 +710,17 @@ async function waitForLibs(){
 
 async function buildPdf(){
   await waitForLibs();
-  const canvas = await html2canvas(document.querySelector('.page'),{scale:2,useCORS:true,logging:false,backgroundColor:'#fff'});
+  const exportHost=document.createElement('div');
+  exportHost.style.cssText='position:absolute;left:-10000px;top:0;width:780px;background:#fff;overflow:visible;transform:none';
+  const exportPage=document.querySelector('.page').cloneNode(true);
+  exportHost.appendChild(exportPage);
+  document.body.appendChild(exportHost);
+  let canvas;
+  try{
+    canvas=await html2canvas(exportPage,{scale:2,useCORS:true,logging:false,backgroundColor:'#fff'});
+  }finally{
+    exportHost.remove();
+  }
   const {jsPDF} = window.jspdf;
   const pdf = new jsPDF('p','mm','a4');
   const pw = pdf.internal.pageSize.getWidth();
