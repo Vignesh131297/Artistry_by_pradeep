@@ -714,15 +714,17 @@ async function buildPdf(){
   const pw = pdf.internal.pageSize.getWidth();
   const ph = pdf.internal.pageSize.getHeight();
   const iw = canvas.width, ih = canvas.height;
-  const ratio = pw / iw;
+  const margin = 8;
+  const contentWidth = pw - margin * 2;
+  const ratio = contentWidth / iw;
   let yPos=0, page=0;
   while(yPos<ih){
     if(page>0) pdf.addPage();
-    const sliceH = Math.min(ih-yPos, ph/ratio);
+    const sliceH = Math.min(ih-yPos, (ph-margin*2)/ratio);
     const sc = document.createElement('canvas');
     sc.width=iw; sc.height=sliceH;
     sc.getContext('2d').drawImage(canvas,0,yPos,iw,sliceH,0,0,iw,sliceH);
-    pdf.addImage(sc.toDataURL('image/jpeg',0.92),'JPEG',0,0,pw,sliceH*ratio);
+    pdf.addImage(sc.toDataURL('image/jpeg',0.92),'JPEG',margin,margin,contentWidth,sliceH*ratio);
     yPos+=sliceH; page++;
   }
   return pdf;
@@ -732,20 +734,32 @@ function isIOS(){
   return /iPad|iPhone|iPod/i.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
 }
 
-function downloadPdfBlob(blob, filename){
+function isMobileDevice(){
+  return /Android|iPad|iPhone|iPod/i.test(navigator.userAgent) || isIOS();
+}
+
+async function savePdfBlob(blob, filename){
+  const file = new File([blob], filename, {type:'application/pdf'});
+
+  if(isMobileDevice() && await canSharePdfFile(file)){
+    try{
+      await navigator.share({files:[file], title:filename});
+      return 'shared';
+    }catch(err){
+      if(err && err.name==='AbortError') return 'cancelled';
+    }
+  }
+
   const url = URL.createObjectURL(blob);
   if(isIOS()){
-    // iOS often ignores <a download> — open PDF so user can Share/Save
-    const opened = window.open(url, '_blank');
+    const opened = window.open(url, '_blank', 'noopener');
     if(!opened){
-      showToast('Tap and hold the PDF, then choose Save / Share');
       window.location.href = url;
-    } else {
-      showToast('PDF opened — use Share / Save in the browser menu');
     }
     setTimeout(()=>URL.revokeObjectURL(url), 60000);
-    return;
+    return 'opened';
   }
+
   const a = document.createElement('a');
   a.href = url;
   a.download = filename;
@@ -757,6 +771,7 @@ function downloadPdfBlob(blob, filename){
     try{ document.body.removeChild(a); }catch(e){}
     URL.revokeObjectURL(url);
   }, 4000);
+  return 'downloaded';
 }
 
 async function canSharePdfFile(file){
@@ -777,8 +792,10 @@ async function saveAsPdf(){
     msg_el.textContent='Generating PDF…';
     const pdf = await buildPdf();
     const blob = pdf.output('blob');
-    downloadPdfBlob(blob, PDF_FILENAME);
-    if(!isIOS()) showToast('PDF downloaded successfully');
+    const result = await savePdfBlob(blob, PDF_FILENAME);
+    if(result==='downloaded') showToast('PDF downloaded successfully');
+    if(result==='shared') showToast('Choose Save to Files or Downloads');
+    if(result==='opened') showToast('PDF opened — use Share / Save in the browser menu');
   }catch(err){
     alert('Could not save PDF: '+(err.message||err));
     console.error(err);
@@ -811,7 +828,8 @@ async function sharePdfToWA(){
 
     // Fallback: download PDF, then open empty WhatsApp chat
     msg_el.textContent='Preparing download…';
-    downloadPdfBlob(blob, PDF_FILENAME);
+    const saveResult = await savePdfBlob(blob, PDF_FILENAME);
+    if(saveResult==='cancelled') return;
     await new Promise(r=>setTimeout(r,500));
     const phone = WA_PHONE ? ('91'+WA_PHONE.replace(/^91/,'')) : '';
     window.open(phone ? ('https://wa.me/'+phone) : 'https://wa.me/', '_blank');
